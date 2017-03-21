@@ -46,7 +46,7 @@ cutoffs <- data_frame(suffix = c("all_0.10", "all_0.15", "all_0.20", "all_0.25",
 
 sites <- genotypes %>% select(chrom = CHR, start = POS, name = SNP) %>% mutate(stop = start) %>% select(chrom, start, stop, name)
 
-filters <- foreach(i = 1:nrow(cutoffs), .combine = cbind) %dopar% {
+filters <- foreach(i = 1:nrow(cutoffs), .combine = cbind) %do% {
   cutoff <- cutoffs$cutoff[i]
   filter <- apply(pop_freq[ ,2:ncol(pop_freq)], 1, function(x){all(x >= cutoff & x <= 1-cutoff)})
   write.table(sites[filter,], file = paste(args[5], "-", cutoffs$suffix[i], ".bed", sep = ""), col.names = FALSE, quote=FALSE, row.names = FALSE)
