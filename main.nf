@@ -130,7 +130,7 @@ process Vcftools_subset {
   publishDir 'outputs/cs-vcf', mode: 'copy'
   tag {prefix}
   cpus 1
-  memory 4.GB
+  memory 32.GB
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
