@@ -44,7 +44,7 @@ pop_freq <- foreach(pop.i = pops, .combine = cbind) %do% {
 
 cutoffs <- data_frame(suffix = c("all_0.10", "all_0.15", "all_0.20", "all_0.25", "all_0.30"), cutoff = seq(0.1,0.3,0.05))
 
-sites <- genotypes %>% select(chrom = CHR, start = POS) %>% mutate(stop = start)
+sites <- genotypes %>% select(chrom = CHR, start = POS, name = SNP) %>% mutate(stop = start) %>% select(chrom, start, stop, name)
 
 filters <- foreach(i = 1:nrow(cutoffs), .combine = cbind) %dopar% {
   cutoff <- cutoffs$cutoff[i]

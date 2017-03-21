@@ -105,8 +105,8 @@ process Plink_traw {
 process Candidate_bed {
   publishDir 'outputs/cs-bed', mode: 'copy'
   tag {prefix}
-  cpus 16
-  memory 60.GB
+  cpus 8
+  memory 32.GB
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
