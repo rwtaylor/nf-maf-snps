@@ -126,28 +126,6 @@ process Candidate_bed {
 candidate_beds = candidate_beds.flatten()
 candidate_beds = candidate_beds.map { file -> [file.baseName, file] }.view()
 
-process Vcftools_subset {
-  publishDir 'outputs/cs-vcf', mode: 'copy'
-  tag {prefix}
-  cpus 1
-  memory 64.GB
-  time 1.h
-  errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
-  maxRetries 7
-  maxErrors '-1'
-
-  input:
-  set prefix, file(cs_bed) from candidate_beds
-  set vcf_prefix, file(vcf) from input_vcf_csvcf.first()
-
-  output:
-  set prefix, file("*.vcf") into candidate_vcfs
-
-  """
-  /usr/local/bin/vcftools --vcf $vcf --recode --recode-INFO-all --remove-indels --bed $cs_bed --out $prefix
-  """
-}
-
 workflow.onComplete {
   println "Pipeline completed at: $workflow.complete"
   println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
