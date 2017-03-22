@@ -102,29 +102,49 @@ process Plink_traw {
   """
 }
 
-process Candidate_bed {
-  publishDir 'outputs/cs-bed', mode: 'copy'
+plink_traw.into { plink_traw_allpoly; plink_traw_diff }
+
+process AllPoly_bed {
+  publishDir 'outputs/all_poly-bed', mode: 'copy'
   tag {prefix}
-  cpus 16
-  memory 64.GB
+  cpus 8
+  memory 32.GB
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
   maxErrors '-1'
 
   input:
-  set prefix, file(traw) from plink_traw
+  set prefix, file(traw) from plink_traw_allpoly
 
   output:
-  file("*.bed") into candidate_beds
+  file("*.bed") into allpoly_beds
 
   """
-  candidate_bed.R $task.cpus jacksoni,sumatrae,altaica,tigris $sample_groups_file $traw $prefix
+  all_poly_snps.R $task.cpus jacksoni,sumatrae,altaica,tigris $sample_groups_file $traw $prefix
   """
 }
 
-candidate_beds = candidate_beds.flatten()
-candidate_beds = candidate_beds.map { file -> [file.baseName, file] }.view()
+process Differentiating_bed {
+  publishDir 'outputs/differentiating-bed', mode: 'copy'
+  tag {prefix}
+  cpus 8
+  memory 32.GB
+  time 1.h
+  errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
+  maxRetries 7
+  maxErrors '-1'
+
+  input:
+  set prefix, file(traw) from plink_traw_diff
+
+  output:
+  file("*.bed") into diff_beds
+
+  """
+  differentiating_snps.R $task.cpus jacksoni,sumatrae,altaica,tigris $sample_groups_file $traw $prefix
+  """
+}
 
 workflow.onComplete {
   println "Pipeline completed at: $workflow.complete"

@@ -13,9 +13,8 @@ args <- commandArgs(trailingOnly = TRUE)
 #args[1] <- 4
 #args[2] <- "jacksoni,sumatrae,altaica,tigris"
 #args[3] <- "../sample_groups.tsv"
-#args[4] <- "../outputs/plink/fb-170208-snp-q30-gq30-hwe-ss0.001.traw"
+#args[4] <- "../outputs/plink/fb-170208-snp-q30-gq30-hwe-ss0.01.traw"
 #args[5] <- "fb-170208-snp-q30-gq30-hwe-ss0.001"
-#setwd("/Volumes/bio-dap15.stanford.edu/zstor/2016-tiger-wgs/basic-stats/bs-test/outputs/rarefaction")
 ###
 
 registerDoMC(cores = args[1])
@@ -42,12 +41,13 @@ pop_freq <- foreach(pop.i = pops, .combine = cbind) %do% {
 
 # Filtering
 
-cutoffs <- data_frame(suffix = c("all_0.10", "all_0.15", "all_0.20", "all_0.25", "all_0.30"), cutoff = seq(0.1,0.3,0.05))
+fixed_snps <- pop_freq[apply(pop_freq, 1, function(x){all((x == 0 | x == 1) & (!is.na(x))) & ((sum(x == 1) == 1) | (sum(x==0) == 1))}), ]
 
-sites <- genotypes %>% select(chrom = CHR, start = POS, name = SNP) %>% mutate(stop = start) %>% select(chrom, start, stop, name)
+bed <- genotypes %>% mutate(start = POS, stop = POS) %>% select(CHR, start, stop, SNP)
 
-filters <- foreach(i = 1:nrow(cutoffs), .combine = cbind) %do% {
-  cutoff <- cutoffs$cutoff[i]
-  filter <- apply(pop_freq[ ,2:ncol(pop_freq)], 1, function(x){all(x >= cutoff & x <= 1-cutoff)})
-  write.table(sites[filter,], file = paste(args[5], "-", cutoffs$suffix[i], ".bed", sep = ""), col.names = FALSE, quote=FALSE, row.names = FALSE)
+nulldrain <- foreach(pop.i = pops) %do% {
+  col.i <- which(pop.i == names(fixed_snps))
+  pop.i.snps <- fixed_snps[apply(fixed_snps,1,function(x){all(x[col.i] != x[-col.i])}),]
+  write.table(bed[as.numeric(rownames(pop.i.snps)),], file = paste(args[5], "-diff_",pop.i, ".bed", sep = ''), col.names = FALSE, quote=FALSE, row.names = FALSE)
 }
+
