@@ -108,7 +108,7 @@ process AllPoly_bed {
   publishDir 'outputs/all_poly-bed', mode: 'copy'
   tag {prefix}
   cpus 16
-  memory 64.GB
+  memory { task.exitStatus == 137 ? (task.attempt > 2 ? 64.GB: 32.GB) : 16.GB}
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
@@ -129,7 +129,7 @@ process Differentiating_bed {
   publishDir 'outputs/differentiating-bed', mode: 'copy'
   tag {prefix}
   cpus 16
-  memory 64.GB
+  memory { task.exitStatus == 137 ? (task.attempt > 2 ? 64.GB: 32.GB) : 16.GB}
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
