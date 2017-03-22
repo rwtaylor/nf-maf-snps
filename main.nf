@@ -107,8 +107,8 @@ plink_traw.into { plink_traw_allpoly; plink_traw_diff }
 process AllPoly_bed {
   publishDir 'outputs/all_poly-bed', mode: 'copy'
   tag {prefix}
-  cpus 8
-  memory 32.GB
+  cpus 16
+  memory 64.GB
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
@@ -128,8 +128,8 @@ process AllPoly_bed {
 process Differentiating_bed {
   publishDir 'outputs/differentiating-bed', mode: 'copy'
   tag {prefix}
-  cpus 8
-  memory 32.GB
+  cpus 16
+  memory 64.GB
   time 1.h
   errorStrategy { task.exitStatus == 143 ? 'retry' : 'finish' }
   maxRetries 7
